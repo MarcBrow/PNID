@@ -1,0 +1,243 @@
+[
+  {
+    "segmento": "Brasil (TOTAL)",
+    "pctCaboFibra": 64.83,
+    "pctRadioSatDslDisc": 6.97,
+    "pctModemChipMovel": 13.53,
+    "pctNaoSabeNaoRespondeu": 14.67,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Urbana",
+    "pctCaboFibra": 67.08,
+    "pctRadioSatDslDisc": 5.44,
+    "pctModemChipMovel": 13.81,
+    "pctNaoSabeNaoRespondeu": 13.67,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Rural",
+    "pctCaboFibra": 45.56,
+    "pctRadioSatDslDisc": 20.06,
+    "pctModemChipMovel": 11.12,
+    "pctNaoSabeNaoRespondeu": 23.26,
+    "flags": [
+      "A1",
+      "A2",
+      "A3",
+      "A4"
+    ],
+    "classe": "Alta"
+  },
+  {
+    "segmento": "Sudeste",
+    "pctCaboFibra": 72.53,
+    "pctRadioSatDslDisc": 6.76,
+    "pctModemChipMovel": 9.19,
+    "pctNaoSabeNaoRespondeu": 11.53,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Nordeste",
+    "pctCaboFibra": 60.24,
+    "pctRadioSatDslDisc": 7.94,
+    "pctModemChipMovel": 11.76,
+    "pctNaoSabeNaoRespondeu": 20.06,
+    "flags": [
+      "A3",
+      "A4"
+    ],
+    "classe": "Média"
+  },
+  {
+    "segmento": "Sul",
+    "pctCaboFibra": 60.18,
+    "pctRadioSatDslDisc": 7.68,
+    "pctModemChipMovel": 19.03,
+    "pctNaoSabeNaoRespondeu": 13.12,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Norte",
+    "pctCaboFibra": 65.88,
+    "pctRadioSatDslDisc": 6.02,
+    "pctModemChipMovel": 15.34,
+    "pctNaoSabeNaoRespondeu": 12.75,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Centro-Oeste",
+    "pctCaboFibra": 62.84,
+    "pctRadioSatDslDisc": 8.72,
+    "pctModemChipMovel": 13.0,
+    "pctNaoSabeNaoRespondeu": 15.44,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Renda: até 1 SM",
+    "pctCaboFibra": 54.49,
+    "pctRadioSatDslDisc": 7.24,
+    "pctModemChipMovel": 17.34,
+    "pctNaoSabeNaoRespondeu": 20.94,
+    "flags": [
+      "A1",
+      "A3",
+      "A4"
+    ],
+    "classe": "Alta"
+  },
+  {
+    "segmento": "Renda: 1–2 SM",
+    "pctCaboFibra": 60.76,
+    "pctRadioSatDslDisc": 7.23,
+    "pctModemChipMovel": 14.87,
+    "pctNaoSabeNaoRespondeu": 17.14,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Renda: 2–3 SM",
+    "pctCaboFibra": 75.9,
+    "pctRadioSatDslDisc": 6.71,
+    "pctModemChipMovel": 10.16,
+    "pctNaoSabeNaoRespondeu": 7.24,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Renda: 3–5 SM",
+    "pctCaboFibra": 78.13,
+    "pctRadioSatDslDisc": 6.39,
+    "pctModemChipMovel": 9.11,
+    "pctNaoSabeNaoRespondeu": 6.37,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Renda: 5–10 SM",
+    "pctCaboFibra": 79.4,
+    "pctRadioSatDslDisc": 7.54,
+    "pctModemChipMovel": 8.34,
+    "pctNaoSabeNaoRespondeu": 4.72,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Renda: >10 SM",
+    "pctCaboFibra": 87.61,
+    "pctRadioSatDslDisc": 5.5,
+    "pctModemChipMovel": 5.56,
+    "pctNaoSabeNaoRespondeu": 1.34,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Renda: não tem",
+    "pctCaboFibra": 48.62,
+    "pctRadioSatDslDisc": 3.77,
+    "pctModemChipMovel": 37.65,
+    "pctNaoSabeNaoRespondeu": 9.96,
+    "flags": [
+      "A1",
+      "A3"
+    ],
+    "classe": "Média"
+  },
+  {
+    "segmento": "Renda: não sabe",
+    "pctCaboFibra": 51.34,
+    "pctRadioSatDslDisc": 6.7,
+    "pctModemChipMovel": 11.42,
+    "pctNaoSabeNaoRespondeu": 30.54,
+    "flags": [
+      "A1",
+      "A3",
+      "A4"
+    ],
+    "classe": "Alta"
+  },
+  {
+    "segmento": "Renda: não respondeu",
+    "pctCaboFibra": 73.35,
+    "pctRadioSatDslDisc": 7.04,
+    "pctModemChipMovel": 8.58,
+    "pctNaoSabeNaoRespondeu": 11.03,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Classe A",
+    "pctCaboFibra": 91.26,
+    "pctRadioSatDslDisc": 3.91,
+    "pctModemChipMovel": 1.1,
+    "pctNaoSabeNaoRespondeu": 3.72,
+    "flags": [],
+    "classe": "Baixa"
+  },
+  {
+    "segmento": "Classe B",
+    "pctCaboFibra": 83.74,
+    "pctRadioSatDslDisc": 5.04,
+    "pctModemChipMovel": 7.2,
+    "pctNaoSabeNaoRespondeu": 4.02,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Classe C",
+    "pctCaboFibra": 67.93,
+    "pctRadioSatDslDisc": 5.89,
+    "pctModemChipMovel": 13.7,
+    "pctNaoSabeNaoRespondeu": 12.48,
+    "flags": [
+      "A3"
+    ],
+    "classe": "Observação"
+  },
+  {
+    "segmento": "Classe DE",
+    "pctCaboFibra": 48.95,
+    "pctRadioSatDslDisc": 10.01,
+    "pctModemChipMovel": 16.7,
+    "pctNaoSabeNaoRespondeu": 24.34,
+    "flags": [
+      "A1",
+      "A2",
+      "A3",
+      "A4"
+    ],
+    "classe": "Alta"
+  }
+]
