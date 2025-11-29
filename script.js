@@ -144,7 +144,7 @@ function renderTableRows(rows) {
   const tbody = document.querySelector("#indicator-table tbody");
   tbody.innerHTML = "";
 
-  rows.forEach((row, idx) => {
+  rows.forEach(row => {
     const tr = document.createElement("tr");
     const css = classToCss(row["Classe"]);
     if (css) tr.classList.add(css);
@@ -284,34 +284,63 @@ function buildAlertFilters() {
   });
 }
 
+function getCodesByGroup(groupName) {
+  return Object.keys(indicators)
+    .filter(code => indicators[code].group === groupName)
+    .sort();
+}
+
 function buildMenu() {
   const menu = document.getElementById("indicator-menu");
   menu.innerHTML = "";
-  const codes = Object.keys(indicators).sort();
 
-  codes.forEach(code => {
-    const btn = document.createElement("button");
-    btn.textContent = code;
-    btn.className = "indicator-tab";
-    btn.dataset.code = code;
-    if (code === currentIndicatorCode) {
-      btn.classList.add("active");
-    }
-    btn.addEventListener("click", () => {
-      if (currentIndicatorCode === code) {
-        applyFilters({ resetSortOnAll: true });
-        return;
+  const groups = [
+    { key: "Domicílios", label: "Domicílios" },
+    { key: "Indivíduos", label: "Indivíduos" }
+  ];
+
+  groups.forEach(group => {
+    const codes = getCodesByGroup(group.key);
+    if (!codes.length) return;
+
+    const groupDiv = document.createElement("div");
+    groupDiv.className = "indicator-group";
+
+    const labelDiv = document.createElement("div");
+    labelDiv.className = "indicator-group-label";
+    labelDiv.textContent = group.label;
+    groupDiv.appendChild(labelDiv);
+
+    const tabsDiv = document.createElement("div");
+    tabsDiv.className = "indicator-group-tabs";
+
+    codes.forEach(code => {
+      const btn = document.createElement("button");
+      btn.textContent = code;
+      btn.className = "indicator-tab";
+      btn.dataset.code = code;
+      if (code === currentIndicatorCode) {
+        btn.classList.add("active");
       }
-      currentIndicatorCode = code;
-      currentSortKey = null;
-      currentSortDirection = "asc";
-      document
-        .querySelectorAll(".indicator-tab")
-        .forEach(el => el.classList.remove("active"));
-      btn.classList.add("active");
-      renderIndicator();
+      btn.addEventListener("click", () => {
+        if (currentIndicatorCode === code) {
+          applyFilters({ resetSortOnAll: true });
+          return;
+        }
+        currentIndicatorCode = code;
+        currentSortKey = null;
+        currentSortDirection = "asc";
+        document
+          .querySelectorAll(".indicator-tab")
+          .forEach(el => el.classList.remove("active"));
+        btn.classList.add("active");
+        renderIndicator();
+      });
+      tabsDiv.appendChild(btn);
     });
-    menu.appendChild(btn);
+
+    groupDiv.appendChild(tabsDiv);
+    menu.appendChild(groupDiv);
   });
 }
 
@@ -320,7 +349,8 @@ function renderIndicator() {
   if (!indicator) return;
 
   document.getElementById("indicator-title").textContent = indicator.title;
-  document.getElementById("page-subtitle").textContent = indicator.subtitle;
+  document.getElementById("indicator-subtitle").textContent =
+    indicator.subtitle || "";
 
   indicator.rows.forEach((row, idx) => {
     if (row.__idx == null) row.__idx = idx;
@@ -358,12 +388,20 @@ function renderIndicator() {
 }
 
 function init() {
-  const codes = Object.keys(indicators);
-  if (codes.includes("A5")) {
-    currentIndicatorCode = "A5";
+  const domCodes = getCodesByGroup("Domicílios");
+  const indCodes = getCodesByGroup("Indivíduos");
+
+  if (domCodes.includes("A10A")) {
+    currentIndicatorCode = "A10A";
+  } else if (domCodes.length > 0) {
+    currentIndicatorCode = domCodes[0];
+  } else if (indCodes.length > 0) {
+    currentIndicatorCode = indCodes[0];
   } else {
-    currentIndicatorCode = codes[0];
+    const allCodes = Object.keys(indicators);
+    currentIndicatorCode = allCodes.length ? allCodes[0] : null;
   }
+
   buildMenu();
   renderIndicator();
 }
