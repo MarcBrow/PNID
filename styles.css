@@ -18,7 +18,7 @@ body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--bg-page);
   color: var(--text-main);
-  overflow-x: auto; /* garante scroll horizontal global se necessário */
+  overflow-x: auto;
 }
 
 .page-header {
@@ -142,14 +142,14 @@ body {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
   max-width: 100%;
-  overflow-x: auto;  /* scroll horizontal interno */
+  overflow-x: auto;
   overflow-y: hidden;
 }
 
 table {
   border-collapse: collapse;
   width: 100%;
-  min-width: 800px; /* espaço suficiente pras colunas */
+  min-width: 800px;
   font-size: 0.9rem;
 }
 
@@ -208,19 +208,15 @@ tbody tr:nth-child(even) {
   color: var(--accent);
 }
 
-/* Cores por classe */
 tbody tr.class-baixa {
   background-color: #ecfdf5;
 }
-
 tbody tr.class-observacao {
   background-color: #eff6ff;
 }
-
 tbody tr.class-media {
   background-color: #fffbeb;
 }
-
 tbody tr.class-alta {
   background-color: #fef2f2;
 }
