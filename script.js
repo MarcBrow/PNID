@@ -46,9 +46,7 @@ function compareRows(a, b) {
   if (numericKeys.includes(key)) {
     const numA = Number(valA);
     const numB = Number(valB);
-    if (isNaN(numA) || isNaN(numB)) {
-      // fallback para string
-    } else {
+    if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
       return (numA - numB) * direction;
     }
   }
@@ -63,7 +61,8 @@ function compareRows(a, b) {
 
 function applyFilters() {
   const alertMode = document.querySelector('input[name="alertMode"]:checked').value;
-  const selectedAlerts = new Set(getSelectedAlerts());
+  const selectedAlertsArr = getSelectedAlerts();
+  const selectedAlerts = new Set(selectedAlertsArr);
   const selectedClasses = new Set(getSelectedClasses());
 
   let filtered = data.slice();
@@ -75,18 +74,32 @@ function applyFilters() {
 
   // Filtro por alertas
   if (alertMode === "filtered") {
-    // se nenhum alerta estiver marcado, considera todos como ativos
-    const allAlertCodes = ["A1", "A2", "A3", "A4"];
+    const allAlertCodes = ["A1", "A2", "A3", "A4", "NONE"];
     const activeAlerts =
       selectedAlerts.size > 0 ? selectedAlerts : new Set(allAlertCodes);
 
     filtered = filtered.filter(row => {
-      if (!row.Flags) return false;
-      const rowAlerts = String(row.Flags)
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean);
-      return rowAlerts.some(a => activeAlerts.has(a));
+      const hasFlags = row.Flags && String(row.Flags).trim().length > 0;
+      const rowAlerts = hasFlags
+        ? String(row.Flags)
+            .split(",")
+            .map(s => s.trim())
+            .filter(Boolean)
+        : [];
+
+      let match = false;
+
+      // Linhas com flags
+      if (hasFlags && rowAlerts.some(a => activeAlerts.has(a))) {
+        match = true;
+      }
+
+      // Linhas sem flags (Sem Alertas)
+      if (!hasFlags && activeAlerts.has("NONE")) {
+        match = true;
+      }
+
+      return match;
     });
   }
 
@@ -118,10 +131,18 @@ function renderTable(rows) {
 
     const cells = [
       row.Segmento,
-      row.pct_CaboFibra?.toFixed ? row.pct_CaboFibra.toFixed(2) : row.pct_CaboFibra,
-      row.pct_RadioSatDSLDisc?.toFixed ? row.pct_RadioSatDSLDisc.toFixed(2) : row.pct_RadioSatDSLDisc,
-      row.pct_ModemChipMovel?.toFixed ? row.pct_ModemChipMovel.toFixed(2) : row.pct_ModemChipMovel,
-      row.pct_NSabe_NResp?.toFixed ? row.pct_NSabe_NResp.toFixed(2) : row.pct_NSabe_NResp,
+      row.pct_CaboFibra != null && row.pct_CaboFibra.toFixed
+        ? row.pct_CaboFibra.toFixed(2)
+        : row.pct_CaboFibra,
+      row.pct_RadioSatDSLDisc != null && row.pct_RadioSatDSLDisc.toFixed
+        ? row.pct_RadioSatDSLDisc.toFixed(2)
+        : row.pct_RadioSatDSLDisc,
+      row.pct_ModemChipMovel != null && row.pct_ModemChipMovel.toFixed
+        ? row.pct_ModemChipMovel.toFixed(2)
+        : row.pct_ModemChipMovel,
+      row.pct_NSabe_NResp != null && row.pct_NSabe_NResp.toFixed
+        ? row.pct_NSabe_NResp.toFixed(2)
+        : row.pct_NSabe_NResp,
       row.Flags || "",
       row.Classe || ""
     ];
@@ -154,7 +175,9 @@ function setupSorting() {
       }
 
       headers.forEach(h => h.classList.remove("sorted-asc", "sorted-desc"));
-      th.classList.add(currentSortDirection === "asc" ? "sorted-asc" : "sorted-desc");
+      th.classList.add(
+        currentSortDirection === "asc" ? "sorted-asc" : "sorted-desc"
+      );
 
       applyFilters();
     });

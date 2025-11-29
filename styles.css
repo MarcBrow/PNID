@@ -140,12 +140,15 @@ body {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
-  overflow: hidden;
+  max-width: 100%;
+  overflow-x: auto;  /* scroll horizontal quando necessário */
+  overflow-y: hidden;
 }
 
 table {
   border-collapse: collapse;
   width: 100%;
+  min-width: 720px; /* garante espaço para todas as colunas */
   font-size: 0.9rem;
 }
 
@@ -234,9 +237,5 @@ tbody tr.class-alta:nth-child(even) {
   }
   .controls {
     max-width: 100%;
-  }
-  th,
-  td {
-    white-space: nowrap;
   }
 }

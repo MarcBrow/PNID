@@ -20,7 +20,8 @@
         <h3>Alertas</h3>
         <p class="helper">
           Selecione quais alertas deseja considerar. Você pode mostrar todos os segmentos
-          ou apenas aqueles que acionam os alertas escolhidos.
+          ou apenas aqueles que acionam os alertas escolhidos, incluindo os que não têm
+          nenhum alerta registrado.
         </p>
 
         <div class="alert-mode">
@@ -55,13 +56,18 @@
             <strong>A4 – SubnotificacaoTipoConexao</strong>
             <span class="alert-desc">(pct_NSabe_NResp ≥ 18)</span>
           </label>
+          <label>
+            <input type="checkbox" class="alert-filter" value="NONE" checked />
+            <strong>Sem Alertas</strong>
+            <span class="alert-desc">(nenhuma flag acionada)</span>
+          </label>
         </div>
       </div>
 
       <div class="filter-group">
         <h3>Classes de risco</h3>
         <p class="helper">
-          As classes são definidas pelo número de flags acionadas em cada segmento.
+          As classes são definidas pelo número de flags acionadas em cada segmento:
         </p>
         <ul class="class-legend">
           <li><strong>Baixa</strong>: 0 flags</li>
