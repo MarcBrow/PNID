@@ -38,13 +38,13 @@ const indicators = {
       "M1": "M1 – Acesso em outro lugar > 10%",
       "M2": "M2 – Muito caro > 5%",
       "M3": "M3 – Falta de disponibilidade > 5%",
-      "M4": "M4 – Subnotificação: Não sabe + Não respondeu > 20%",
-      "3": "3 ou 4 flags (≥3) → Alta"
+      "M4": "M4 – Subnotificação: Não sabe + Não respondeu > 20%"
     },
     "classLegend": [
       "0 flags → Baixa",
       "1 flag → Observação",
-      "2 flags → Média"
+      "2 flags → Média",
+      "3 ou 4 flags (≥3) → Alta"
     ],
     "rows": [
       {
@@ -277,13 +277,13 @@ const indicators = {
       "P1": "P1 – PoucoPrecoBaixo: pct_abaixo40 <= 20",
       "P2": "P2 – MuitoPrecoMedio: pct_40a80 >= 40",
       "P3": "P3 – MuitoPrecoAlto: pct_acima80 >= 40",
-      "P4": "P4 – SubnotificacaoPreco: pct_NSNR >= 20",
-      "3": "3 ou 4 flags (>=3) → Alta"
+      "P4": "P4 – SubnotificacaoPreco: pct_NSNR >= 20"
     },
     "classLegend": [
       "0 flags → Baixa",
       "1 flag → Observação",
-      "2 flags → Média"
+      "2 flags → Média",
+      "3 ou 4 flags (>=3) → Alta"
     ],
     "rows": [
       {
@@ -512,13 +512,13 @@ const indicators = {
       "A1": "A1: pct_Sim > 5",
       "A2": "A2: pct_Sim > 10",
       "A3": "A3: pct_Sim > 20",
-      "A4": "A4: pct_NaoRespondeu (NS+NR) > 20",
-      "3": "3 ou 4 flags (ou seja, >=3) → Alta"
+      "A4": "A4: pct_NaoRespondeu (NS+NR) > 20"
     },
     "classLegend": [
       "0 flags → Baixa",
       "1 flag → Observação",
-      "2 flags → Média"
+      "2 flags → Média",
+      "3 ou 4 flags (ou seja, >=3) → Alta"
     ],
     "rows": [
       {
@@ -726,13 +726,13 @@ const indicators = {
       "A1": "A1 se pct_Nao > 5",
       "A2": "A2 se pct_Nao > 10",
       "A3": "A3 se pct_Nao > 15",
-      "A4": "A4 se pct_Nao > 20",
-      "3": "3 ou 4 flags (ou seja, >=3) → Alta"
+      "A4": "A4 se pct_Nao > 20"
     },
     "classLegend": [
       "0 flags → Baixa",
       "1 flag → Observação",
-      "2 flags → Média"
+      "2 flags → Média",
+      "3 ou 4 flags (ou seja, >=3) → Alta"
     ],
     "rows": [
       {
@@ -944,13 +944,13 @@ const indicators = {
       "A1": "A1 – BaixaFibraCabo: pct_CaboFibra < 55",
       "A2": "A2 – MuitoRadioSatDSLDisc: pct_RadioSatDSLDisc >= 10",
       "A3": "A3 – MuitoModemChipMovel: pct_ModemChipMovel > 5",
-      "A4": "A4 – SubnotificacaoTipoConexao: pct_NSabe_NResp >= 18",
-      "3": "3 ou 4 flags (ou seja, >=3) → Alta"
+      "A4": "A4 – SubnotificacaoTipoConexao: pct_NSabe_NResp >= 18"
     },
     "classLegend": [
       "0 flags → Baixa",
       "1 flag → Observação",
-      "2 flags → Média"
+      "2 flags → Média",
+      "3 ou 4 flags (ou seja, >=3) → Alta"
     ],
     "rows": [
       {
@@ -1191,13 +1191,13 @@ const indicators = {
       "V1": "V1 – BaixaVelocidade: pct_ate20Mbps > 20",
       "V2": "V2 – PoucaAltaVelocidade: pct_51Mais < 25",
       "V3": "V3 – Subnotificacao: pct_NSNR >= 10",
-      "V4": "V4 – SemBandaLargaFixa: pct_semBLFixa >= 30",
-      "3": "3 ou 4 flags (ou seja, >=3) → Alta"
+      "V4": "V4 – SemBandaLargaFixa: pct_semBLFixa >= 30"
     },
     "classLegend": [
       "0 flags → Baixa",
       "1 flag → Observação",
-      "2 flags → Média"
+      "2 flags → Média",
+      "3 ou 4 flags (ou seja, >=3) → Alta"
     ],
     "rows": [
       {
