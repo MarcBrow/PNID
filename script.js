@@ -1,24 +1,9 @@
+let currentIndicatorCode = null;
 let currentSortKey = null;
 let currentSortDirection = "asc";
 
-const alertCheckboxes = () => Array.from(document.querySelectorAll(".alert-filter"));
-const classCheckboxes = () => Array.from(document.querySelectorAll(".class-filter"));
-
-// Guarda ordem original
-data.forEach((row, idx) => {
-  row.__idx = idx;
-});
-
-function getSelectedAlerts() {
-  return alertCheckboxes()
-    .filter(cb => cb.checked)
-    .map(cb => cb.value);
-}
-
-function getSelectedClasses() {
-  return classCheckboxes()
-    .filter(cb => cb.checked)
-    .map(cb => cb.value);
+function getCurrentIndicator() {
+  return indicators[currentIndicatorCode];
 }
 
 function normalizeString(str) {
@@ -29,7 +14,7 @@ function normalizeString(str) {
 }
 
 function getFlagsInfo(row) {
-  let raw = row.Flags;
+  const raw = row["Flags"];
   if (raw === null || raw === undefined) {
     return { hasFlags: false, flagsArray: [], display: "" };
   }
@@ -45,6 +30,28 @@ function getFlagsInfo(row) {
   };
 }
 
+function classToCss(classe) {
+  if (!classe) return "";
+  const normalized = normalizeString(classe);
+  if (normalized.startsWith("baixa")) return "class-baixa";
+  if (normalized.startsWith("observacao")) return "class-observacao";
+  if (normalized.startsWith("média") || normalized.startsWith("media")) return "class-media";
+  if (normalized.startsWith("alta")) return "class-alta";
+  return "";
+}
+
+function getSelectedAlerts() {
+  return Array.from(document.querySelectorAll(".alert-filter"))
+    .filter(cb => cb.checked)
+    .map(cb => cb.value);
+}
+
+function getSelectedClasses() {
+  return Array.from(document.querySelectorAll(".class-filter"))
+    .filter(cb => cb.checked)
+    .map(cb => cb.value);
+}
+
 function compareRows(a, b) {
   const key = currentSortKey;
   const direction = currentSortDirection === "asc" ? 1 : -1;
@@ -56,14 +63,10 @@ function compareRows(a, b) {
   if (valA == null) return 1 * direction;
   if (valB == null) return -1 * direction;
 
-  const numericKeys = [
-    "pct_CaboFibra",
-    "pct_RadioSatDSLDisc",
-    "pct_ModemChipMovel",
-    "pct_NSabe_NResp"
-  ];
+  const numericLike =
+    key !== "Segmento" && key !== "Flags" && key !== "Classe";
 
-  if (numericKeys.includes(key)) {
+  if (numericLike) {
     const numA = Number(valA);
     const numB = Number(valB);
     if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
@@ -80,8 +83,11 @@ function compareRows(a, b) {
 }
 
 function applyFilters({ resetSortOnAll = false } = {}) {
+  const indicator = getCurrentIndicator();
+  if (!indicator) return;
+
   const alertMode = document.querySelector('input[name="alertMode"]:checked').value;
-  const headers = document.querySelectorAll("#a5-table th.sortable");
+  const headers = document.querySelectorAll("#indicator-table th.sortable");
 
   if (alertMode === "all" && resetSortOnAll) {
     currentSortKey = null;
@@ -89,7 +95,7 @@ function applyFilters({ resetSortOnAll = false } = {}) {
     headers.forEach(h => h.classList.remove("sorted-asc", "sorted-desc"));
   }
 
-  let rows = data.slice();
+  let rows = indicator.rows.slice();
 
   if (alertMode === "filtered") {
     const selectedAlertsArr = getSelectedAlerts();
@@ -97,12 +103,13 @@ function applyFilters({ resetSortOnAll = false } = {}) {
     const selectedClasses = new Set(getSelectedClasses());
 
     if (selectedClasses.size > 0) {
-      rows = rows.filter(row => selectedClasses.has(row.Classe));
+      rows = rows.filter(row => selectedClasses.has(row["Classe"]));
     }
 
-    const allAlertCodes = ["A1", "A2", "A3", "A4", "NONE"];
+    const allCodes = Object.keys(indicator.alerts || {});
+    allCodes.push("NONE");
     const activeAlerts =
-      selectedAlerts.size > 0 ? selectedAlerts : new Set(allAlertCodes);
+      selectedAlerts.size > 0 ? selectedAlerts : new Set(allCodes);
 
     rows = rows.filter(row => {
       const info = getFlagsInfo(row);
@@ -122,56 +129,49 @@ function applyFilters({ resetSortOnAll = false } = {}) {
   if (currentSortKey) {
     rows.sort(compareRows);
   } else {
-    rows.sort((a, b) => (a.__idx ?? 0) - (b.__idx ?? 0));
+    // order of Excel
+    rows.sort((a, b) => {
+      const ia = a.__idx ?? 0;
+      const ib = b.__idx ?? 0;
+      return ia - ib;
+    });
   }
 
-  renderTable(rows);
+  renderTableRows(rows);
 }
 
-function classToCss(classe) {
-  if (!classe) return "";
-  const normalized = normalizeString(classe);
-  if (normalized.startsWith("baixa")) return "class-baixa";
-  if (normalized.startsWith("observacao")) return "class-observacao";
-  if (normalized.startsWith("media")) return "class-media";
-  if (normalized.startsWith("alta")) return "class-alta";
-  return "";
-}
-
-function renderTable(rows) {
-  const tbody = document.querySelector("#a5-table tbody");
+function renderTableRows(rows) {
+  const indicator = getCurrentIndicator();
+  const tbody = document.querySelector("#indicator-table tbody");
   tbody.innerHTML = "";
 
-  rows.forEach(row => {
+  rows.forEach((row, idx) => {
     const tr = document.createElement("tr");
-    const className = classToCss(row.Classe);
-    if (className) {
-      tr.classList.add(className);
-    }
+    const css = classToCss(row["Classe"]);
+    if (css) tr.classList.add(css);
 
     const flagsInfo = getFlagsInfo(row);
 
-    const cells = [
-      row.Segmento,
-      row.pct_CaboFibra != null && row.pct_CaboFibra.toFixed
-        ? row.pct_CaboFibra.toFixed(2)
-        : row.pct_CaboFibra,
-      row.pct_RadioSatDSLDisc != null && row.pct_RadioSatDSLDisc.toFixed
-        ? row.pct_RadioSatDSLDisc.toFixed(2)
-        : row.pct_RadioSatDSLDisc,
-      row.pct_ModemChipMovel != null && row.pct_ModemChipMovel.toFixed
-        ? row.pct_ModemChipMovel.toFixed(2)
-        : row.pct_ModemChipMovel,
-      row.pct_NSabe_NResp != null && row.pct_NSabe_NResp.toFixed
-        ? row.pct_NSabe_NResp.toFixed(2)
-        : row.pct_NSabe_NResp,
-      flagsInfo.display,
-      row.Classe || ""
-    ];
+    indicator.columns.forEach(col => {
+      const key = col.key;
+      let value = row[key];
 
-    cells.forEach(value => {
+      if (
+        value != null &&
+        key !== "Segmento" &&
+        key !== "Flags" &&
+        key !== "Classe" &&
+        typeof value === "number"
+      ) {
+        value = value.toFixed(2);
+      }
+
+      if (key === "Flags") {
+        value = flagsInfo.display;
+      }
+
       const td = document.createElement("td");
-      td.textContent = value;
+      td.textContent = value == null ? "" : value;
       tr.appendChild(td);
     });
 
@@ -179,11 +179,12 @@ function renderTable(rows) {
   });
 
   const summary = document.getElementById("summary");
-  summary.textContent = `${rows.length} de ${data.length} segmentos exibidos.`;
+  summary.textContent = `${rows.length} de ${getCurrentIndicator().rows.length} segmentos exibidos.`;
 }
 
 function setupSorting() {
-  const headers = document.querySelectorAll("#a5-table th.sortable");
+  const headerRow = document.getElementById("table-header-row");
+  const headers = headerRow.querySelectorAll("th.sortable");
   headers.forEach(th => {
     th.addEventListener("click", () => {
       const key = th.dataset.key;
@@ -206,37 +207,174 @@ function setupSorting() {
   });
 }
 
-function init() {
-  setupSorting();
+function buildTableHeader() {
+  const indicator = getCurrentIndicator();
+  const headerRow = document.getElementById("table-header-row");
+  headerRow.innerHTML = "";
 
-  // change de modo (all/filtered)
+  indicator.columns.forEach(col => {
+    const th = document.createElement("th");
+    th.textContent = col.label;
+    th.dataset.key = col.key;
+    th.classList.add("sortable");
+    headerRow.appendChild(th);
+  });
+
+  setupSorting();
+}
+
+function buildAlertFilters() {
+  const indicator = getCurrentIndicator();
+  const container = document.getElementById("alert-checkboxes");
+  container.innerHTML = "";
+
+  const alerts = indicator.alerts || {};
+  const codes = Object.keys(alerts).sort();
+
+  codes.forEach(code => {
+    const full = alerts[code];
+    let rest = full;
+    if (full.startsWith(code)) {
+      rest = full.slice(code.length).replace(/^[-–:\s]+/, "");
+    }
+    const label = document.createElement("label");
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.className = "alert-filter";
+    input.value = code;
+    input.checked = true;
+
+    const strong = document.createElement("strong");
+    strong.textContent = code;
+
+    const span = document.createElement("span");
+    span.className = "alert-desc";
+    span.textContent = rest ? " – " + rest : "";
+
+    label.appendChild(input);
+    label.appendChild(strong);
+    label.appendChild(span);
+
+    container.appendChild(label);
+  });
+
+  // Sem Alertas
+  const labelNone = document.createElement("label");
+  const inputNone = document.createElement("input");
+  inputNone.type = "checkbox";
+  inputNone.className = "alert-filter";
+  inputNone.value = "NONE";
+  inputNone.checked = true;
+
+  const strongNone = document.createElement("strong");
+  strongNone.textContent = "Sem Alertas";
+
+  const spanNone = document.createElement("span");
+  spanNone.className = "alert-desc";
+  spanNone.textContent = " (nenhuma flag acionada / valor nulo)";
+
+  labelNone.appendChild(inputNone);
+  labelNone.appendChild(strongNone);
+  labelNone.appendChild(spanNone);
+  container.appendChild(labelNone);
+
+  // eventos de mudança
+  Array.from(document.querySelectorAll(".alert-filter")).forEach(cb => {
+    cb.addEventListener("change", () =>
+      applyFilters({ resetSortOnAll: false })
+    );
+  });
+}
+
+function buildMenu() {
+  const menu = document.getElementById("indicator-menu");
+  menu.innerHTML = "";
+  const codes = Object.keys(indicators).sort();
+
+  codes.forEach(code => {
+    const btn = document.createElement("button");
+    btn.textContent = code;
+    btn.className = "indicator-tab";
+    btn.dataset.code = code;
+    if (code === currentIndicatorCode) {
+      btn.classList.add("active");
+    }
+    btn.addEventListener("click", () => {
+      if (currentIndicatorCode === code) {
+        // reset sort and filters order
+        applyFilters({ resetSortOnAll: true });
+        return;
+      }
+      currentIndicatorCode = code;
+      currentSortKey = null;
+      currentSortDirection = "asc";
+      document
+        .querySelectorAll(".indicator-tab")
+        .forEach(el => el.classList.remove("active"));
+      btn.classList.add("active");
+      renderIndicator();
+    });
+    menu.appendChild(btn);
+  });
+}
+
+function renderIndicator() {
+  const indicator = getCurrentIndicator();
+  if (!indicator) return;
+
+  document.getElementById("indicator-title").textContent = indicator.title;
+  document.getElementById("page-subtitle").textContent = indicator.subtitle;
+
+  // ensure __idx exists for stable original order
+  indicator.rows.forEach((row, idx) => {
+    if (row.__idx == null) row.__idx = idx;
+  });
+
+  // rebuild alerts + header
+  buildAlertFilters();
+  buildTableHeader();
+
+  // reset alert mode to "all"
+  const allRadio = document.querySelector('input[name="alertMode"][value="all"]');
+  if (allRadio) allRadio.checked = true;
+
+  // listeners para modo de alerta e classes
   document
     .querySelectorAll('input[name="alertMode"]')
     .forEach(radio => {
-      radio.addEventListener("change", () => {
+      radio.onchange = () => {
         const isAll = radio.value === "all" && radio.checked;
         applyFilters({ resetSortOnAll: isAll });
-      });
+      };
     });
 
-  // clique no "all" mesmo já selecionado -> reset
-  const allRadio = document.querySelector('input[name="alertMode"][value="all"]');
-  if (allRadio) {
-    allRadio.addEventListener("click", () => {
-      if (allRadio.checked) {
+  const allRadioClick = document.querySelector('input[name="alertMode"][value="all"]');
+  if (allRadioClick) {
+    allRadioClick.onclick = () => {
+      if (allRadioClick.checked) {
         applyFilters({ resetSortOnAll: true });
       }
-    });
+    };
   }
 
-  alertCheckboxes().forEach(cb =>
-    cb.addEventListener("change", () => applyFilters({ resetSortOnAll: false }))
-  );
-  classCheckboxes().forEach(cb =>
-    cb.addEventListener("change", () => applyFilters({ resetSortOnAll: false }))
-  );
+  Array.from(document.querySelectorAll(".class-filter")).forEach(cb => {
+    cb.onchange = () => applyFilters({ resetSortOnAll: false });
+  });
 
   applyFilters({ resetSortOnAll: true });
+}
+
+function init() {
+  // define indicador padrão (A5 se existir, senão o primeiro)
+  const codes = Object.keys(indicators);
+  if (codes.includes("A5")) {
+    currentIndicatorCode = "A5";
+  } else {
+    currentIndicatorCode = codes[0];
+  }
+  buildMenu();
+  renderIndicator();
 }
 
 document.addEventListener("DOMContentLoaded", init);

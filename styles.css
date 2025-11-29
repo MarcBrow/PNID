@@ -24,20 +24,48 @@ body {
 .page-header {
   background: #111827;
   color: #f9fafb;
-  padding: 1.5rem 1.75rem;
+  padding: 1.5rem 1.75rem 1rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.32);
 }
 
 .page-header h1 {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 600;
 }
 
 .subtitle {
-  margin: 0.35rem 0 0;
+  margin: 0.35rem 0 0.75rem;
   font-size: 0.95rem;
   color: #e5e7eb;
+}
+
+.indicator-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.indicator-tab {
+  border: 1px solid rgba(249, 250, 251, 0.4);
+  background: rgba(17, 24, 39, 0.6);
+  color: #e5e7eb;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.indicator-tab:hover {
+  background: rgba(37, 99, 235, 0.9);
+  transform: translateY(-1px);
+}
+
+.indicator-tab.active {
+  background: #f9fafb;
+  color: #111827;
+  font-weight: 600;
 }
 
 .container {
@@ -50,7 +78,7 @@ body {
 
 .controls {
   flex: 1 1 280px;
-  max-width: 380px;
+  max-width: 400px;
   background: var(--bg-card);
   padding: 1.25rem 1.25rem 1.5rem;
   border-radius: var(--radius-lg);
@@ -60,7 +88,7 @@ body {
 .controls h2 {
   margin-top: 0;
   margin-bottom: 0.75rem;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
 
 .filter-group {
@@ -221,6 +249,10 @@ tbody tr.class-alta:nth-child(even) {
 }
 
 @media (max-width: 900px) {
-  .container { flex-direction: column; }
-  .controls { max-width: 100%; }
+  .container {
+    flex-direction: column;
+  }
+  .controls {
+    max-width: 100%;
+  }
 }
