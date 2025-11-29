@@ -208,18 +208,10 @@ tbody tr:nth-child(even) {
   color: var(--accent);
 }
 
-tbody tr.class-baixa {
-  background-color: #ecfdf5;
-}
-tbody tr.class-observacao {
-  background-color: #eff6ff;
-}
-tbody tr.class-media {
-  background-color: #fffbeb;
-}
-tbody tr.class-alta {
-  background-color: #fef2f2;
-}
+tbody tr.class-baixa { background-color: #ecfdf5; }
+tbody tr.class-observacao { background-color: #eff6ff; }
+tbody tr.class-media { background-color: #fffbeb; }
+tbody tr.class-alta { background-color: #fef2f2; }
 
 tbody tr.class-baixa:nth-child(even),
 tbody tr.class-observacao:nth-child(even),
@@ -229,10 +221,6 @@ tbody tr.class-alta:nth-child(even) {
 }
 
 @media (max-width: 900px) {
-  .container {
-    flex-direction: column;
-  }
-  .controls {
-    max-width: 100%;
-  }
+  .container { flex-direction: column; }
+  .controls { max-width: 100%; }
 }

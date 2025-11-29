@@ -4,7 +4,7 @@ let currentSortDirection = "asc";
 const alertCheckboxes = () => Array.from(document.querySelectorAll(".alert-filter"));
 const classCheckboxes = () => Array.from(document.querySelectorAll(".class-filter"));
 
-// adiciona índice original
+// Guarda ordem original
 data.forEach((row, idx) => {
   row.__idx = idx;
 });
@@ -79,7 +79,7 @@ function compareRows(a, b) {
   return 0;
 }
 
-function applyFilters(resetSortOnAll = false) {
+function applyFilters({ resetSortOnAll = false } = {}) {
   const alertMode = document.querySelector('input[name="alertMode"]:checked').value;
   const headers = document.querySelectorAll("#a5-table th.sortable");
 
@@ -108,9 +108,7 @@ function applyFilters(resetSortOnAll = false) {
       const info = getFlagsInfo(row);
       const hasFlags = info.hasFlags;
       const rowAlerts = info.flagsArray;
-
       let match = false;
-
       if (hasFlags && rowAlerts.some(a => activeAlerts.has(a))) {
         match = true;
       }
@@ -203,7 +201,7 @@ function setupSorting() {
         currentSortDirection === "asc" ? "sorted-asc" : "sorted-desc"
       );
 
-      applyFilters(false);
+      applyFilters({ resetSortOnAll: false });
     });
   });
 }
@@ -211,18 +209,34 @@ function setupSorting() {
 function init() {
   setupSorting();
 
-  document.querySelectorAll('input[name="alertMode"]').forEach(radio => {
-    radio.addEventListener("change", () => applyFilters(true));
-  });
+  // change de modo (all/filtered)
+  document
+    .querySelectorAll('input[name="alertMode"]')
+    .forEach(radio => {
+      radio.addEventListener("change", () => {
+        const isAll = radio.value === "all" && radio.checked;
+        applyFilters({ resetSortOnAll: isAll });
+      });
+    });
+
+  // clique no "all" mesmo já selecionado -> reset
+  const allRadio = document.querySelector('input[name="alertMode"][value="all"]');
+  if (allRadio) {
+    allRadio.addEventListener("click", () => {
+      if (allRadio.checked) {
+        applyFilters({ resetSortOnAll: true });
+      }
+    });
+  }
 
   alertCheckboxes().forEach(cb =>
-    cb.addEventListener("change", () => applyFilters(false))
+    cb.addEventListener("change", () => applyFilters({ resetSortOnAll: false }))
   );
   classCheckboxes().forEach(cb =>
-    cb.addEventListener("change", () => applyFilters(false))
+    cb.addEventListener("change", () => applyFilters({ resetSortOnAll: false }))
   );
 
-  applyFilters(true);
+  applyFilters({ resetSortOnAll: true });
 }
 
 document.addEventListener("DOMContentLoaded", init);
