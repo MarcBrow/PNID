@@ -1,149 +1,178 @@
-let allData = [];
-let uniqueAlerts = new Set();
+// Estado de ordenação
+let currentSortKey = "Segmento";
+let currentSortDirection = "asc"; // 'asc' ou 'desc'
 
-async function carregarDados() {
-  const resp = await fetch("a5.json");
-  allData = await resp.json();
+const alertCheckboxes = () => Array.from(document.querySelectorAll(".alert-filter"));
+const classCheckboxes = () => Array.from(document.querySelectorAll(".class-filter"));
 
-  // Descobrir todos os tipos de alerta existentes
-  allData.forEach(row => {
-    (row.flags || []).forEach(flag => {
-      uniqueAlerts.add(flag);
-    });
-  });
-
-  criarFiltrosDeAlertas();
-  renderTable(); // primeira renderização (mostrar todos)
+function getSelectedAlerts() {
+  return alertCheckboxes()
+    .filter(cb => cb.checked)
+    .map(cb => cb.value);
 }
 
-function criarFiltrosDeAlertas() {
-  const container = document.getElementById("alert-filters");
-  container.innerHTML = "<strong>Filtrar por alertas:</strong>";
+function getSelectedClasses() {
+  return classCheckboxes()
+    .filter(cb => cb.checked)
+    .map(cb => cb.value);
+}
 
-  Array.from(uniqueAlerts).sort().forEach(alert => {
-    const id = `alert-${alert}`;
-    const label = document.createElement("label");
-    label.style.display = "inline-flex";
-    label.style.alignItems = "center";
-    label.style.gap = "0.25rem";
+function normalizeString(str) {
+  return String(str)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.value = alert;
-    input.id = id;
-    input.checked = false; // por padrão, nenhum filtro marcado
+function compareRows(a, b) {
+  const key = currentSortKey;
+  const direction = currentSortDirection === "asc" ? 1 : -1;
 
-    input.addEventListener("change", () => {
-      const showAll = document.getElementById("check-show-all");
-      if (showAll.checked) {
-        // se alguém marcar filtro, desmarca “mostrar todos”
-        showAll.checked = false;
-      }
-      renderTable();
-    });
+  let valA = a[key];
+  let valB = b[key];
 
-    const span = document.createElement("span");
-    span.textContent = alert;
+  if (valA == null && valB == null) return 0;
+  if (valA == null) return 1 * direction;
+  if (valB == null) return -1 * direction;
 
-    label.appendChild(input);
-    label.appendChild(span);
+  // Verifica se devemos tratar como numérico
+  const numericKeys = [
+    "pct_CaboFibra",
+    "pct_RadioSatDSLDisc",
+    "pct_ModemChipMovel",
+    "pct_NSabe_NResp"
+  ];
 
-    container.appendChild(label);
-  });
-
-  // Listener do checkbox "Mostrar todos"
-  const showAll = document.getElementById("check-show-all");
-  showAll.addEventListener("change", () => {
-    if (showAll.checked) {
-      // se marcar "mostrar todos", limpa todos os filtros
-      document
-        .querySelectorAll("#alert-filters input[type=checkbox]")
-        .forEach(cb => (cb.checked = false));
+  if (numericKeys.includes(key)) {
+    const numA = Number(valA);
+    const numB = Number(valB);
+    if (isNaN(numA) || isNaN(numB)) {
+      // fallback para string
+    } else {
+      return (numA - numB) * direction;
     }
-    renderTable();
-  });
+  }
+
+  const strA = normalizeString(valA);
+  const strB = normalizeString(valB);
+
+  if (strA < strB) return -1 * direction;
+  if (strA > strB) return 1 * direction;
+  return 0;
 }
 
-function renderTable() {
-  const tbody = document.getElementById("table-body");
-  const summary = document.getElementById("summary");
-  tbody.innerHTML = "";
+function applyFilters() {
+  const alertMode = document.querySelector('input[name="alertMode"]:checked').value;
+  const selectedAlerts = new Set(getSelectedAlerts());
+  const selectedClasses = new Set(getSelectedClasses());
 
-  const showAll = document.getElementById("check-show-all").checked;
+  let filtered = data.slice();
 
-  // quais alertas foram selecionados?
-  const selectedAlerts = Array.from(
-    document.querySelectorAll("#alert-filters input[type=checkbox]:checked")
-  ).map(cb => cb.value);
+  // Filtro por classe
+  if (selectedClasses.size > 0) {
+    filtered = filtered.filter(row => selectedClasses.has(row.Classe));
+  }
 
-  let visibleData = [];
+  // Filtro por alertas
+  if (alertMode === "filtered") {
+    // se nenhum alerta estiver marcado, considera todos como ativos
+    const allAlertCodes = ["A1", "A2", "A3", "A4"];
+    const activeAlerts =
+      selectedAlerts.size > 0 ? selectedAlerts : new Set(allAlertCodes);
 
-  if (showAll || selectedAlerts.length === 0) {
-    // modo “mostrar tudo” (ou nenhum filtro marcado)
-    visibleData = allData.slice();
-  } else {
-    // mantém linhas que tenham pelo menos um alerta selecionado
-    visibleData = allData.filter(row => {
-      const flags = row.flags || [];
-      return flags.some(f => selectedAlerts.includes(f));
+    filtered = filtered.filter(row => {
+      if (!row.Flags) return false;
+      const rowAlerts = String(row.Flags)
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+      return rowAlerts.some(a => activeAlerts.has(a));
     });
   }
 
-  visibleData.forEach(row => {
+  // Ordena antes de renderizar
+  filtered.sort(compareRows);
+  renderTable(filtered);
+}
+
+function classToCss(classe) {
+  if (!classe) return "";
+  const normalized = normalizeString(classe);
+  if (normalized.startsWith("baixa")) return "class-baixa";
+  if (normalized.startsWith("observacao")) return "class-observacao";
+  if (normalized.startsWith("media")) return "class-media";
+  if (normalized.startsWith("alta")) return "class-alta";
+  return "";
+}
+
+function renderTable(rows) {
+  const tbody = document.querySelector("#a5-table tbody");
+  tbody.innerHTML = "";
+
+  rows.forEach(row => {
     const tr = document.createElement("tr");
-
-    const tdSegmento = document.createElement("td");
-    tdSegmento.textContent = row.segmento;
-    tdSegmento.className = "segmento";
-    tr.appendChild(tdSegmento);
-
-    const tdCabo = document.createElement("td");
-    tdCabo.textContent = row.pctCaboFibra.toFixed(2);
-    tr.appendChild(tdCabo);
-
-    const tdRadio = document.createElement("td");
-    tdRadio.textContent = row.pctRadioSatDslDisc.toFixed(2);
-    tr.appendChild(tdRadio);
-
-    const tdModem = document.createElement("td");
-    tdModem.textContent = row.pctModemChipMovel.toFixed(2);
-    tr.appendChild(tdModem);
-
-    const tdNsNr = document.createElement("td");
-    tdNsNr.textContent = row.pctNaoSabeNaoRespondeu.toFixed(2);
-    tr.appendChild(tdNsNr);
-
-    const tdFlags = document.createElement("td");
-    (row.flags || []).forEach(flag => {
-      const span = document.createElement("span");
-      span.className = `badge badge-${flag}`;
-      span.textContent = flag;
-      tdFlags.appendChild(span);
-    });
-    if (!row.flags || row.flags.length === 0) {
-      tdFlags.textContent = "—";
+    const className = classToCss(row.Classe);
+    if (className) {
+      tr.classList.add(className);
     }
-    tr.appendChild(tdFlags);
 
-    const tdClasse = document.createElement("td");
-    const classe = (row.classe || "").trim();
-    const classeKey = classe.replace(" ", "-");
-    tdClasse.textContent = classe || "—";
-    tdClasse.className = `classe-${classeKey}`;
-    tr.appendChild(tdClasse);
+    const cells = [
+      row.Segmento,
+      row.pct_CaboFibra?.toFixed ? row.pct_CaboFibra.toFixed(2) : row.pct_CaboFibra,
+      row.pct_RadioSatDSLDisc?.toFixed ? row.pct_RadioSatDSLDisc.toFixed(2) : row.pct_RadioSatDSLDisc,
+      row.pct_ModemChipMovel?.toFixed ? row.pct_ModemChipMovel.toFixed(2) : row.pct_ModemChipMovel,
+      row.pct_NSabe_NResp?.toFixed ? row.pct_NSabe_NResp.toFixed(2) : row.pct_NSabe_NResp,
+      row.Flags || "",
+      row.Classe || ""
+    ];
+
+    cells.forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
 
     tbody.appendChild(tr);
   });
 
-  const total = allData.length;
-  const visiveis = visibleData.length;
-
-  if (showAll || selectedAlerts.length === 0) {
-    summary.textContent = `Mostrando ${visiveis} de ${total} segmentos (sem filtro de alerta).`;
-  } else {
-    summary.textContent = `Mostrando ${visiveis} de ${total} segmentos com pelo menos um dos alertas: ${selectedAlerts.join(", ")}.`;
-  }
+  const summary = document.getElementById("summary");
+  summary.textContent = `${rows.length} de ${data.length} segmentos exibidos.`;
 }
 
-// iniciar
-carregarDados();
+function setupSorting() {
+  const headers = document.querySelectorAll("#a5-table th.sortable");
+  headers.forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.key;
+      if (!key) return;
+
+      if (currentSortKey === key) {
+        currentSortDirection = currentSortDirection === "asc" ? "desc" : "asc";
+      } else {
+        currentSortKey = key;
+        currentSortDirection = "asc";
+      }
+
+      headers.forEach(h => h.classList.remove("sorted-asc", "sorted-desc"));
+      th.classList.add(currentSortDirection === "asc" ? "sorted-asc" : "sorted-desc");
+
+      applyFilters();
+    });
+  });
+}
+
+function init() {
+  setupSorting();
+
+  // Listeners de filtros
+  document.querySelectorAll('input[name="alertMode"]').forEach(radio => {
+    radio.addEventListener("change", applyFilters);
+  });
+
+  alertCheckboxes().forEach(cb => cb.addEventListener("change", applyFilters));
+  classCheckboxes().forEach(cb => cb.addEventListener("change", applyFilters));
+
+  applyFilters();
+}
+
+document.addEventListener("DOMContentLoaded", init);

@@ -2,135 +2,117 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Alertas A5 – Conectividade</title>
+  <title>Alertas TIC Domicílios 2024: A5 - DOMICÍLIOS COM ACESSO À INTERNET, POR TIPO DE CONEXÃO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 1rem;
-      background: #f5f5f5;
-    }
-    h1 {
-      margin-top: 0;
-    }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 1rem 1.5rem 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: center;
-      margin-bottom: 1rem;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 0.75rem;
-    }
-    .filters-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem 1rem;
-      align-items: center;
-    }
-    .badge {
-      display: inline-block;
-      padding: 0.1rem 0.4rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      background: #eee;
-      margin-right: 0.25rem;
-    }
-    .badge-A1 { background: #ffe0e0; }
-    .badge-A2 { background: #fff3cd; }
-    .badge-A3 { background: #d1ecf1; }
-    .badge-A4 { background: #e2e3ff; }
-
-    .classe-Alta { color: #b30000; font-weight: 700; }
-    .classe-Média { color: #d58512; font-weight: 700; }
-    .classe-Baixa { color: #2d862d; font-weight: 700; }
-    .classe-Observação { color: #555; font-weight: 600; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-    }
-    th, td {
-      padding: 0.4rem 0.5rem;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-      white-space: nowrap;
-    }
-    th {
-      background: #fafafa;
-      font-weight: 600;
-    }
-    tbody tr:nth-child(even) {
-      background: #fcfcfc;
-    }
-    .segmento {
-      white-space: normal;
-      max-width: 220px;
-    }
-    .summary {
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      color: #555;
-    }
-    @media (max-width: 768px) {
-      table {
-        font-size: 0.8rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>Alertas A5 – Conectividade por Segmento</h1>
-    <p>
-      Use os filtros abaixo para visualizar apenas os segmentos com determinados alertas
-      (A1, A2, A3, A4) ou visualize todos os dados da planilha.
-    </p>
+  <header class="page-header">
+    <h1>Alertas TIC Domicílios 2024: A5 - DOMICÍLIOS COM ACESSO À INTERNET, POR TIPO DE CONEXÃO</h1>
+    <p class="subtitle">Total de domicílios com acesso à Internet</p>
+  </header>
 
-    <div class="filters">
-      <div class="filters-group" id="alert-filters">
-        <!-- checkboxes de alertas vão ser inseridos via JS -->
+  <main class="container">
+    <section class="controls">
+      <h2>Filtros</h2>
+
+      <div class="filter-group">
+        <h3>Alertas</h3>
+        <p class="helper">
+          Selecione quais alertas deseja considerar. Você pode mostrar todos os segmentos
+          ou apenas aqueles que acionam os alertas escolhidos.
+        </p>
+
+        <div class="alert-mode">
+          <label>
+            <input type="radio" name="alertMode" value="all" checked />
+            Mostrar todos os segmentos (sem filtro por alerta)
+          </label>
+          <label>
+            <input type="radio" name="alertMode" value="filtered" />
+            Mostrar apenas segmentos com os alertas selecionados
+          </label>
+        </div>
+
+        <div class="alert-checkboxes">
+          <label>
+            <input type="checkbox" class="alert-filter" value="A1" checked />
+            <strong>A1 – BaixaFibraCabo</strong>
+            <span class="alert-desc">(pct_CaboFibra &lt; 55)</span>
+          </label>
+          <label>
+            <input type="checkbox" class="alert-filter" value="A2" checked />
+            <strong>A2 – MuitoRadioSatDSLDisc</strong>
+            <span class="alert-desc">(pct_RadioSatDSLDisc ≥ 10)</span>
+          </label>
+          <label>
+            <input type="checkbox" class="alert-filter" value="A3" checked />
+            <strong>A3 – MuitoModemChipMovel</strong>
+            <span class="alert-desc">(pct_ModemChipMovel &gt; 5)</span>
+          </label>
+          <label>
+            <input type="checkbox" class="alert-filter" value="A4" checked />
+            <strong>A4 – SubnotificacaoTipoConexao</strong>
+            <span class="alert-desc">(pct_NSabe_NResp ≥ 18)</span>
+          </label>
+        </div>
       </div>
-      <div class="filters-group">
-        <label>
-          <input type="checkbox" id="check-show-all" checked />
-          Mostrar todos os segmentos (ignorar filtros de alerta)
-        </label>
+
+      <div class="filter-group">
+        <h3>Classes de risco</h3>
+        <p class="helper">
+          As classes são definidas pelo número de flags acionadas em cada segmento.
+        </p>
+        <ul class="class-legend">
+          <li><strong>Baixa</strong>: 0 flags</li>
+          <li><strong>Observação</strong>: 1 flag</li>
+          <li><strong>Média</strong>: 2 flags</li>
+          <li><strong>Alta</strong>: 3 ou 4 flags (≥ 3)</li>
+        </ul>
+
+        <div class="class-checkboxes">
+          <label>
+            <input type="checkbox" class="class-filter" value="Baixa" checked />
+            Baixa
+          </label>
+          <label>
+            <input type="checkbox" class="class-filter" value="Observação" checked />
+            Observação
+          </label>
+          <label>
+            <input type="checkbox" class="class-filter" value="Média" checked />
+            Média
+          </label>
+          <label>
+            <input type="checkbox" class="class-filter" value="Alta" checked />
+            Alta
+          </label>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div class="summary" id="summary"></div>
+    <section class="table-section">
+      <div class="table-wrapper">
+        <table id="a5-table">
+          <thead>
+            <tr>
+              <th data-key="Segmento" class="sortable sorted-asc">Segmento</th>
+              <th data-key="pct_CaboFibra" class="sortable">Cabo/Fibra (%)</th>
+              <th data-key="pct_RadioSatDSLDisc" class="sortable">Rádio/Sat/DSL/Disc (%)</th>
+              <th data-key="pct_ModemChipMovel" class="sortable">Modem/Chip Móvel (%)</th>
+              <th data-key="pct_NSabe_NResp" class="sortable">Não sabe/Não resp. (%)</th>
+              <th data-key="Flags" class="sortable">Flags</th>
+              <th data-key="Classe" class="sortable">Classe</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p id="summary" class="summary"></p>
+    </section>
+  </main>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Segmento</th>
-          <th>Cabo/Fibra (%)</th>
-          <th>Rádio/Sat/DSL/Disc (%)</th>
-          <th>Modem/Chip Móvel (%)</th>
-          <th>NS/NR (%)</th>
-          <th>Alertas</th>
-          <th>Classe</th>
-        </tr>
-      </thead>
-      <tbody id="table-body">
-        <!-- linhas geradas via JS -->
-      </tbody>
-    </table>
-  </div>
-
+  <script src="data.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
