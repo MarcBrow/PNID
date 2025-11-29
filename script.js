@@ -129,7 +129,6 @@ function applyFilters({ resetSortOnAll = false } = {}) {
   if (currentSortKey) {
     rows.sort(compareRows);
   } else {
-    // order of Excel
     rows.sort((a, b) => {
       const ia = a.__idx ?? 0;
       const ib = b.__idx ?? 0;
@@ -259,7 +258,6 @@ function buildAlertFilters() {
     container.appendChild(label);
   });
 
-  // Sem Alertas
   const labelNone = document.createElement("label");
   const inputNone = document.createElement("input");
   inputNone.type = "checkbox";
@@ -279,7 +277,6 @@ function buildAlertFilters() {
   labelNone.appendChild(spanNone);
   container.appendChild(labelNone);
 
-  // eventos de mudança
   Array.from(document.querySelectorAll(".alert-filter")).forEach(cb => {
     cb.addEventListener("change", () =>
       applyFilters({ resetSortOnAll: false })
@@ -302,7 +299,6 @@ function buildMenu() {
     }
     btn.addEventListener("click", () => {
       if (currentIndicatorCode === code) {
-        // reset sort and filters order
         applyFilters({ resetSortOnAll: true });
         return;
       }
@@ -326,20 +322,16 @@ function renderIndicator() {
   document.getElementById("indicator-title").textContent = indicator.title;
   document.getElementById("page-subtitle").textContent = indicator.subtitle;
 
-  // ensure __idx exists for stable original order
   indicator.rows.forEach((row, idx) => {
     if (row.__idx == null) row.__idx = idx;
   });
 
-  // rebuild alerts + header
   buildAlertFilters();
   buildTableHeader();
 
-  // reset alert mode to "all"
   const allRadio = document.querySelector('input[name="alertMode"][value="all"]');
   if (allRadio) allRadio.checked = true;
 
-  // listeners para modo de alerta e classes
   document
     .querySelectorAll('input[name="alertMode"]')
     .forEach(radio => {
@@ -366,7 +358,6 @@ function renderIndicator() {
 }
 
 function init() {
-  // define indicador padrão (A5 se existir, senão o primeiro)
   const codes = Object.keys(indicators);
   if (codes.includes("A5")) {
     currentIndicatorCode = "A5";
