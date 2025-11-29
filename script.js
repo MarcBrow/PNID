@@ -24,6 +24,24 @@ function normalizeString(str) {
     .toLowerCase();
 }
 
+// Normaliza o campo Flags para uso em filtros e exibição
+function getFlagsInfo(row) {
+  let raw = row.Flags;
+  if (raw === null || raw === undefined) {
+    return { hasFlags: false, flagsArray: [], display: "" };
+  }
+  let text = String(raw).trim();
+  if (!text || /^(nan|null|undefined)$/i.test(text)) {
+    return { hasFlags: false, flagsArray: [], display: "" };
+  }
+  const parts = text.split(",").map(s => s.trim()).filter(Boolean);
+  return {
+    hasFlags: parts.length > 0,
+    flagsArray: parts,
+    display: parts.join(",")
+  };
+}
+
 function compareRows(a, b) {
   const key = currentSortKey;
   const direction = currentSortDirection === "asc" ? 1 : -1;
@@ -35,7 +53,6 @@ function compareRows(a, b) {
   if (valA == null) return 1 * direction;
   if (valB == null) return -1 * direction;
 
-  // Verifica se devemos tratar como numérico
   const numericKeys = [
     "pct_CaboFibra",
     "pct_RadioSatDSLDisc",
@@ -79,13 +96,9 @@ function applyFilters() {
       selectedAlerts.size > 0 ? selectedAlerts : new Set(allAlertCodes);
 
     filtered = filtered.filter(row => {
-      const hasFlags = row.Flags && String(row.Flags).trim().length > 0;
-      const rowAlerts = hasFlags
-        ? String(row.Flags)
-            .split(",")
-            .map(s => s.trim())
-            .filter(Boolean)
-        : [];
+      const info = getFlagsInfo(row);
+      const hasFlags = info.hasFlags;
+      const rowAlerts = info.flagsArray;
 
       let match = false;
 
@@ -103,7 +116,6 @@ function applyFilters() {
     });
   }
 
-  // Ordena antes de renderizar
   filtered.sort(compareRows);
   renderTable(filtered);
 }
@@ -129,6 +141,8 @@ function renderTable(rows) {
       tr.classList.add(className);
     }
 
+    const flagsInfo = getFlagsInfo(row);
+
     const cells = [
       row.Segmento,
       row.pct_CaboFibra != null && row.pct_CaboFibra.toFixed
@@ -143,7 +157,7 @@ function renderTable(rows) {
       row.pct_NSabe_NResp != null && row.pct_NSabe_NResp.toFixed
         ? row.pct_NSabe_NResp.toFixed(2)
         : row.pct_NSabe_NResp,
-      row.Flags || "",
+      flagsInfo.display,
       row.Classe || ""
     ];
 
@@ -187,7 +201,6 @@ function setupSorting() {
 function init() {
   setupSorting();
 
-  // Listeners de filtros
   document.querySelectorAll('input[name="alertMode"]').forEach(radio => {
     radio.addEventListener("change", applyFilters);
   });
